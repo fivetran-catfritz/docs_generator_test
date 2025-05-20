@@ -65,10 +65,12 @@ jobs:
         cp integration_tests/target/manifest.json docs/
 
     - name: Commit docs update to PR branch
+      env:
+        BRANCH_NAME: ${{ github.event.issue.pull_request.head.ref }}
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git checkout -B ${{ github.event.issue.pull_request.head.ref }}
+        git checkout -B "$BRANCH_NAME"
         git add docs/
         git commit -m "Regenerate dbt docs from integration_tests" || echo "No changes to commit"
-        git push origin ${{ github.event.issue.pull_request.head.ref }}
+        git push origin "$BRANCH_NAME"
