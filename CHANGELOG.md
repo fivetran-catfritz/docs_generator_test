@@ -1,3 +1,5 @@
+some different changes
+
 # dbt_recharge v0.3.1
 [PR #27](https://github.com/fivetran/dbt_recharge/pull/27) includes the following changes:
 
