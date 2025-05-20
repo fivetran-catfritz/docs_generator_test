@@ -29,6 +29,7 @@ jobs:
       with:
         ref: ${{ github.event.issue.pull_request.head.ref }}
         repository: ${{ github.repository }}
+        fetch-depth: 0  # Required to create local branches
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -67,7 +68,7 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git checkout ${{ github.event.issue.pull_request.head.ref }}
+        git checkout -B ${{ github.event.issue.pull_request.head.ref }}
         git add docs/
         git commit -m "Regenerate dbt docs from integration_tests" || echo "No changes to commit"
         git push origin ${{ github.event.issue.pull_request.head.ref }}
