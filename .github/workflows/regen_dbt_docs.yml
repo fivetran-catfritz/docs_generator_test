@@ -15,7 +15,7 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v3
       with:
-        fetch-depth: 0  # Required for creating and updating branches
+        fetch-depth: 0
 
     - name: Get PR branch name
       id: pr
@@ -34,7 +34,7 @@ jobs:
     - name: Install dbt
       run: |
         pip install --upgrade pip
-        pip install dbt-core dbt-postgres  # adjust adapter if needed
+        pip install dbt-core dbt-postgres
 
     - name: Set up dbt profile
       run: |
@@ -50,6 +50,13 @@ jobs:
       env:
         BRANCH_NAME: ${{ steps.pr.outputs.branch }}
 
+    # Enable @doc-var entries
+    - name: Enable doc-specific vars in dbt_project.yml
+      working-directory: integration_tests
+      run: |
+        cp dbt_project.yml dbt_project.yml.bak
+        sed -i -E 's/^# ([[:space:]]*[^#]+)# @doc-var/\1# @doc-var/' dbt_project.yml
+
     - name: Run dbt docs in integration_tests/
       working-directory: integration_tests
       run: |
@@ -58,7 +65,7 @@ jobs:
         dbt run
         dbt docs generate
 
-    - name: Copy docs files
+    - name: Copy docs to root folder
       run: |
         rm -rf docs/*
         mkdir -p docs
@@ -75,3 +82,8 @@ jobs:
         git push origin "$BRANCH_NAME"
       env:
         BRANCH_NAME: ${{ steps.pr.outputs.branch }}
+
+    - name: Restore original dbt_project.yml
+      working-directory: integration_tests
+      if: always()
+      run: mv dbt_project.yml.bak dbt_project.yml
