@@ -50,20 +50,20 @@ jobs:
       env:
         BRANCH_NAME: ${{ steps.pr.outputs.branch }}
 
-    # Enable @doc-var entries
-    - name: Enable doc-specific vars in dbt_project.yml
+    - name: Extract docs_vars as JSON
+      id: extract_doc_vars
       working-directory: integration_tests
       run: |
-        cp dbt_project.yml dbt_project.yml.bak
-        sed -i -E 's/^# ([[:space:]]*[^#]+)# @doc-var/\1# @doc-var/' dbt_project.yml
+        VARS=$(yq e '[.docs_vars[]] | add' dbt_project.yml | yq e -o=json -)
+        echo "vars_json=$VARS" >> "$GITHUB_OUTPUT"
 
-    - name: Run dbt docs in integration_tests/
+    - name: Run dbt with docs_vars
       working-directory: integration_tests
       run: |
         dbt deps
         dbt seed --full-refresh
-        dbt run
-        dbt docs generate
+        dbt run --vars '${{ steps.extract_doc_vars.outputs.vars_json }}'
+        dbt docs generate --vars '${{ steps.extract_doc_vars.outputs.vars_json }}'
 
     - name: Copy docs to root folder
       run: |
