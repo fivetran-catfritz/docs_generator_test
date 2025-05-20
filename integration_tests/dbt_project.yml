@@ -12,6 +12,8 @@ docs_vars:
   - recharge__checkout_enabled: true
 
 vars:
+  docs_vars:
+    recharge__checkout_enabled: true
   # recharge__checkout_enabled: true # @uncomment-for-docs
   recharge_source:
     recharge_schema: recharge_test
