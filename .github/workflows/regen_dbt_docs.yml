@@ -54,7 +54,7 @@ jobs:
       id: extract_doc_vars
       working-directory: integration_tests
       run: |
-        VARS=$(yq e '[.docs_vars[]] | add' dbt_project.yml | yq e -o=json -)
+        VARS=$(yq e '[.vars.docs_vars[]] | add' dbt_project.yml | yq e -o=json -)
         echo "vars_json=$VARS" >> "$GITHUB_OUTPUT"
 
     - name: Run dbt with docs_vars
