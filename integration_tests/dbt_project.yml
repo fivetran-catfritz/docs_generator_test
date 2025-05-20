@@ -9,9 +9,7 @@ models:
   +schema: "recharge_{{ var('directed_schema','dev') }}"  ## To be used for validation tests
 
 vars:
-  docs_vars:
-    recharge__checkout_enabled: true
-  # recharge__checkout_enabled: true # @uncomment-for-docs
+  # recharge__checkout_enabled: true # @doc-var
   recharge_source:
     recharge_schema: recharge_test
     recharge_address_identifier: "address_data"
