@@ -82,8 +82,3 @@ jobs:
         git push origin "$BRANCH_NAME"
       env:
         BRANCH_NAME: ${{ steps.pr.outputs.branch }}
-
-    - name: Restore original dbt_project.yml
-      working-directory: integration_tests
-      if: always()
-      run: mv dbt_project.yml.bak dbt_project.yml
