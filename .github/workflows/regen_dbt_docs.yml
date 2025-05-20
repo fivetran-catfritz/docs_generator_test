@@ -14,15 +14,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout PR branch
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.issue.pull_request.head.ref }}
+        repository: ${{ github.repository }}
+
     - name: Debug path
       run: |
         ls -R
 
-    # - name: Checkout PR branch
-    #   uses: actions/checkout@v3
-    #   with:
-    #     ref: ${{ github.event.issue.pull_request.head.ref }}
-    #     repository: ${{ github.repository }}
+    - name: Checkout PR branch
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.issue.pull_request.head.ref }}
+        repository: ${{ github.repository }}
 
     # - name: Set up Python
     #   uses: actions/setup-python@v4
