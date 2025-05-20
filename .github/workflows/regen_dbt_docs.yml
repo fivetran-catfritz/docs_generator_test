@@ -1,25 +1,30 @@
-# .github/workflows/regen_dbt_docs.yml
-
-name: Regen dbt Docs from integration_tests
+name: Regen dbt Docs from PR Comment
 
 on:
   issue_comment:
     types: [created]
 
 jobs:
-  generate-docs:
+  regen-docs:
     if: |
       github.event.issue.pull_request &&
       github.event.comment.body == 'regen docs'
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout PR branch
+    - name: Checkout repo
       uses: actions/checkout@v3
       with:
-        ref: ${{ github.event.issue.pull_request.head.ref }}
-        repository: ${{ github.repository }}
-        fetch-depth: 0  # Required to create local branches
+        fetch-depth: 0  # Required for creating and updating branches
+
+    - name: Get PR branch name
+      id: pr
+      run: |
+        pr_number=$(jq --raw-output .issue.number "$GITHUB_EVENT_PATH")
+        branch=$(gh pr view "$pr_number" --json headRefName -q .headRefName)
+        echo "branch=$branch" >> "$GITHUB_OUTPUT"
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -28,17 +33,24 @@ jobs:
 
     - name: Install dbt
       run: |
-        python -m pip install --upgrade pip
-        pip install dbt-core dbt-postgres
+        pip install --upgrade pip
+        pip install dbt-core dbt-postgres  # adjust adapter if needed
 
-    - name: Set up dbt profiles
+    - name: Set up dbt profile
       run: |
         mkdir -p ~/.dbt
         echo "$DBT_PROFILES_YML" > ~/.dbt/profiles.yml
       env:
         DBT_PROFILES_YML: ${{ secrets.DBT_PROFILES_YML }}
 
-    - name: Run integration_tests dbt project
+    - name: Checkout PR branch and rebase
+      run: |
+        git checkout -B $BRANCH_NAME origin/$BRANCH_NAME
+        git pull --rebase origin $BRANCH_NAME
+      env:
+        BRANCH_NAME: ${{ steps.pr.outputs.branch }}
+
+    - name: Run dbt docs in integration_tests/
       working-directory: integration_tests
       run: |
         dbt deps
@@ -46,7 +58,7 @@ jobs:
         dbt run
         dbt docs generate
 
-    - name: Move generated docs to root docs/ folder
+    - name: Copy docs files
       run: |
         rm -rf docs/*
         mkdir -p docs
@@ -54,22 +66,12 @@ jobs:
         cp integration_tests/target/index.html docs/
         cp integration_tests/target/manifest.json docs/
 
-    - name: Get PR head branch name
-      id: pr_branch
-      run: |
-        pr_number=$(jq --raw-output .issue.number "$GITHUB_EVENT_PATH")
-        branch=$(gh pr view "$pr_number" --json headRefName -q .headRefName)
-        echo "branch=$branch" >> "$GITHUB_OUTPUT"
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
-
-    - name: Commit docs update to PR branch
+    - name: Commit and push docs to PR branch
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git checkout -B "$BRANCH_NAME"
         git add docs/
         git commit -m "Regenerate dbt docs from integration_tests" || echo "No changes to commit"
         git push origin "$BRANCH_NAME"
       env:
-        BRANCH_NAME: ${{ steps.pr_branch.outputs.branch }}
+        BRANCH_NAME: ${{ steps.pr.outputs.branch }}
