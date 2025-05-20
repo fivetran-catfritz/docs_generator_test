@@ -92,3 +92,8 @@ jobs:
       working-directory: integration_tests
       if: always()
       run: mv dbt_project.yml.bak dbt_project.yml
+
+    - name: Drop dbt schema using fivetran_utils
+      working-directory: integration_tests
+      run: |
+        dbt run-operation fivetran_utils.drop_schemas_automation
