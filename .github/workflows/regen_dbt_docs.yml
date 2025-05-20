@@ -19,16 +19,6 @@ jobs:
       with:
         ref: ${{ github.event.issue.pull_request.head.ref }}
         repository: ${{ github.repository }}
-
-    - name: Debug path
-      run: |
-        ls -R
-
-    - name: Checkout PR branch
-      uses: actions/checkout@v3
-      with:
-        ref: ${{ github.event.issue.pull_request.head.ref }}
-        repository: ${{ github.repository }}
         fetch-depth: 0  # Required to create local branches
 
     - name: Set up Python
@@ -64,9 +54,16 @@ jobs:
         cp integration_tests/target/index.html docs/
         cp integration_tests/target/manifest.json docs/
 
-    - name: Commit docs update to PR branch
+    - name: Get PR head branch name
+      id: pr_branch
+      run: |
+        pr_number=$(jq --raw-output .issue.number "$GITHUB_EVENT_PATH")
+        branch=$(gh pr view "$pr_number" --json headRefName -q .headRefName)
+        echo "branch=$branch" >> "$GITHUB_OUTPUT"
       env:
-        BRANCH_NAME: ${{ github.event.issue.pull_request.head.ref }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    - name: Commit docs update to PR branch
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -74,3 +71,5 @@ jobs:
         git add docs/
         git commit -m "Regenerate dbt docs from integration_tests" || echo "No changes to commit"
         git push origin "$BRANCH_NAME"
+      env:
+        BRANCH_NAME: ${{ steps.pr_branch.outputs.branch }}
