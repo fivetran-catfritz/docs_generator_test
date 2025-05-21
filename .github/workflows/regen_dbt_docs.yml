@@ -7,7 +7,6 @@ on:
 jobs:
   regen-docs:
     if: |
-      github.event.issue.pull_request &&
       github.event.label.name == 'ready:docs'
     runs-on: ubuntu-latest
 
