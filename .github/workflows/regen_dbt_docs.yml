@@ -1,8 +1,12 @@
 name: Regen dbt Docs from PR Comment
 
 on:
-  issue_comment:
-    types: [created]
+  pull_request:
+    types: [labeled]
+
+jobs:
+  regen-docs:
+    if: github.event.label.name == 'ready:docs'
 
 jobs:
   regen-docs:
@@ -55,12 +59,6 @@ jobs:
       run: |
         cp dbt_project.yml dbt_project.yml.bak
         sed -i -E 's/^([[:space:]]*)# ([^#]+)# @doc-var/\1\2# @doc-var/' dbt_project.yml
-
-    - name: Debug dbt_project.yml contents
-      working-directory: integration_tests
-      run: |
-        echo "===== dbt_project.yml after sed ====="
-        cat dbt_project.yml
 
     - name: Run dbt docs
       working-directory: integration_tests
