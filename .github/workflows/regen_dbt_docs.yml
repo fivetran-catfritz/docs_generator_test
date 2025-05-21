@@ -19,11 +19,7 @@ jobs:
     - name: Get PR branch name
       id: pr
       run: |
-        pr_number=$(jq --raw-output .issue.number "$GITHUB_EVENT_PATH")
-        branch=$(gh pr view "$pr_number" --json headRefName -q .headRefName)
-        echo "branch=$branch" >> "$GITHUB_OUTPUT"
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        echo "branch=${{ github.event.pull_request.head.ref }}" >> "$GITHUB_OUTPUT"
 
     - name: Set up Python
       uses: actions/setup-python@v4
