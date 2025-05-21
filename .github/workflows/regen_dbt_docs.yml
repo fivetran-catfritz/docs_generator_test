@@ -7,7 +7,7 @@ on:
 jobs:
   regen-docs:
     if: |
-      github.event.label.name == 'ready:docs'
+      github.event.label.name == 'docs:ready'
     runs-on: ubuntu-latest
 
     steps:
