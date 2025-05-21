@@ -6,13 +6,9 @@ on:
 
 jobs:
   regen-docs:
-    if: github.event.label.name == 'ready:docs'
-
-jobs:
-  regen-docs:
     if: |
       github.event.issue.pull_request &&
-      github.event.comment.body == 'regen docs'
+      github.event.label.name == 'ready:docs'
     runs-on: ubuntu-latest
 
     steps:
