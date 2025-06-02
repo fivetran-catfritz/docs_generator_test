@@ -6,9 +6,23 @@ on:
 
 jobs:
   regen-docs:
-    if: |
-      github.event.label.name == 'docs:ready'
+    if: github.event.label.name == 'docs:ready'
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: dbt
+          POSTGRES_PASSWORD: dbt
+          POSTGRES_DB: dbt
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
     - name: Checkout repo
@@ -31,12 +45,23 @@ jobs:
         pip install --upgrade pip
         pip install dbt-core dbt-postgres
 
-    - name: Set up dbt profile
+    - name: Set up dbt profile for Dockerized Postgres
       run: |
         mkdir -p ~/.dbt
-        echo "$DBT_PROFILES_YML" > ~/.dbt/profiles.yml
-      env:
-        DBT_PROFILES_YML: ${{ secrets.DBT_PROFILES_YML }}
+        cat > ~/.dbt/profiles.yml <<EOF
+        my_project:
+          target: dev
+          outputs:
+            dev:
+              type: postgres
+              host: localhost
+              user: dbt
+              password: dbt
+              port: 5432
+              dbname: dbt
+              schema: public
+              threads: 1
+        EOF
 
     - name: Checkout PR branch and rebase
       run: |
@@ -81,8 +106,3 @@ jobs:
       working-directory: integration_tests
       if: always()
       run: mv dbt_project.yml.bak dbt_project.yml
-
-    - name: Drop dbt schema using fivetran_utils
-      working-directory: integration_tests
-      run: |
-        dbt run-operation fivetran_utils.drop_schemas_automation
