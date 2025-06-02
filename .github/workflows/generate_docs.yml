@@ -94,22 +94,8 @@ jobs:
     - name: Run dbt docs
       working-directory: integration_tests
       run: |
-        REPO_NAME=$(basename "$GITHUB_REPOSITORY")
-        # Remove prefix and suffix from repo name
-        BASE_NAME=${REPO_NAME#dbt_}
-        BASE_NAME=${BASE_NAME%_source}
-
-        # Exception for LinkedIn
-        if [ "$BASE_NAME" = "linkedin" ]; then
-          SCHEMA_VAR_NAME="linkedin_ads_schema"
-        # delete the elif after testing is done
-        elif [ "$BASE_NAME" = "docs_generator_test" ]; then
-          SCHEMA_VAR_NAME="recharge_schema"
-        else
-          SCHEMA_VAR_NAME="${BASE_NAME}_schema"
-        fi
-
-        VARS_JSON="{$SCHEMA_VAR_NAME: 'public'}"
+        SCHEMA_VAR_NAME="${{ inputs.schema_var_name }}"
+        VARS_JSON="{$SCHEMA_VAR_NAME:'public'}"
     
         dbt deps
         dbt seed --full-refresh
