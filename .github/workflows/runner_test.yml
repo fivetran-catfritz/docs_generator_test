@@ -7,7 +7,7 @@ on:
 jobs:
   generate-docs:
     if: github.event.label.name == 'docs:ready'
-    uses: fivetran-catfritz/docs_generator_test/.github/workflows/generate-docs.yml@main
+    uses: fivetran/dbt_package_automations/.github/workflows/generate-docs.yml@feature/generate-docs
     with:
       schema_var_name: recharge_schema
     secrets: inherit
