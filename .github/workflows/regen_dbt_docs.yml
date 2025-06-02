@@ -50,16 +50,16 @@ jobs:
         mkdir -p ~/.dbt
         cat > ~/.dbt/profiles.yml <<EOF
         integration_tests:
-          target: docker
+          target: container
           outputs:
-            docker:
+            container:
               type: postgres
               host: localhost
               user: dbt
               password: dbt
               port: 5432
               dbname: dbt
-              schema: recharge_test
+              schema: public
               threads: 1
         EOF
 
@@ -79,9 +79,21 @@ jobs:
     - name: Run dbt docs
       working-directory: integration_tests
       run: |
+        REPO_NAME=$(basename "$GITHUB_REPOSITORY")
+        # Remove prefix and suffix from repo name
+        BASE_NAME=${REPO_NAME#dbt_}
+        BASE_NAME=${BASE_NAME%_source}
+
+        # Exception for LinkedIn
+        if [ "$BASE_NAME" = "linkedin" ]; then
+          SCHEMA_VAR_NAME="linkedin_ads_schema"
+        else
+          SCHEMA_VAR_NAME="${BASE_NAME}_schema"
+        fi
+        
         dbt deps
         dbt seed --full-refresh
-        dbt run
+        dbt run --vars '{$SCHEMA_VAR_NAME:"public"}'
         dbt docs generate
 
     - name: Copy docs to root folder
@@ -97,7 +109,7 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add docs/
-        git commit -m "Regenerate dbt docs from integration_tests" || echo "No changes to commit"
+        git commit -m "dbt docs automation" || echo "No changes to commit"
         git push origin "$BRANCH_NAME"
       env:
         BRANCH_NAME: ${{ steps.pr.outputs.branch }}
