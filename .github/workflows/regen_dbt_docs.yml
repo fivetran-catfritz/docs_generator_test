@@ -81,6 +81,13 @@ jobs:
         # Comment out any line containing @docs-ignore
         sed -i -E 's/^([[:space:]]*)([^#][^#]*)(# .*@docs-ignore.*)/\1# \2\3/' dbt_project.yml
 
+    - name: Show modified dbt_project.yml for debugging
+      working-directory: integration_tests
+      run: |
+        echo "--------- dbt_project.yml ---------"
+        cat dbt_project.yml
+        echo "-----------------------------------"
+
     - name: Run dbt docs
       working-directory: integration_tests
       run: |
