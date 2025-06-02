@@ -101,7 +101,7 @@ jobs:
         dbt deps
         dbt seed --full-refresh
         dbt run --vars "$VARS_JSON"
-        dbt docs generate
+        dbt docs generate --vars "$VARS_JSON"
 
     - name: Copy docs to root folder
       run: |
