@@ -90,10 +90,14 @@ jobs:
         else
           SCHEMA_VAR_NAME="${BASE_NAME}_schema"
         fi
-        
+
+        echo "Using schema var: $SCHEMA_VAR_NAME"
+        VARS_JSON="{\"$SCHEMA_VAR_NAME\": \"public\"}"
+        echo "Running dbt with vars: $VARS_JSON"
+    
         dbt deps
         dbt seed --full-refresh
-        dbt run --vars '{$SCHEMA_VAR_NAME: "public"}'
+        dbt run --vars "$VARS_JSON"
         dbt docs generate
 
     - name: Copy docs to root folder
