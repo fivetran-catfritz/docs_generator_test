@@ -75,11 +75,11 @@ jobs:
       run: |
         cp dbt_project.yml dbt_project.yml.bak
     
-        # Uncomment lines tagged with @doc-var
-        sed -i -E 's/^([[:space:]]*)# ([^#]+)# @doc-var/\1\2# @docs-include/' dbt_project.yml
+        # Uncomment any line containing @docs-include
+        sed -i -E 's/^([[:space:]]*)# ([^#]*)(# .*@docs-include.*)/\1\2\3/' dbt_project.yml
     
-        # Comment out lines tagged with @doc-ignore
-        sed -i -E 's/^([[:space:]]*)([^#][^#]*# @docs-ignore)/\1# \2/' dbt_project.yml
+        # Comment out any line containing @docs-ignore
+        sed -i -E 's/^([[:space:]]*)([^#][^#]*)(# .*@docs-ignore.*)/\1# \2\3/' dbt_project.yml
 
     - name: Run dbt docs
       working-directory: integration_tests
