@@ -93,7 +93,7 @@ jobs:
         
         dbt deps
         dbt seed --full-refresh
-        dbt run --vars "{\"$SCHEMA_VAR_NAME\": \"public\"}"
+        dbt run --vars '{$SCHEMA_VAR_NAME: "public"}'
         dbt docs generate
 
     - name: Copy docs to root folder
