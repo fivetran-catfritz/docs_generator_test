@@ -11,7 +11,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:15
+        image: postgres
         ports:
           - 5432:5432
         env:
@@ -26,7 +26,7 @@ jobs:
 
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
