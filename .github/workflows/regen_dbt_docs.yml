@@ -87,6 +87,9 @@ jobs:
         # Exception for LinkedIn
         if [ "$BASE_NAME" = "linkedin" ]; then
           SCHEMA_VAR_NAME="linkedin_ads_schema"
+        # delete the elif after testing is done
+        elif [ "$BASE_NAME" = "docs_generator_test" ]; then
+          SCHEMA_VAR_NAME="recharge_schema"
         else
           SCHEMA_VAR_NAME="${BASE_NAME}_schema"
         fi
