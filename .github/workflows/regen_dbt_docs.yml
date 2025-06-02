@@ -92,7 +92,7 @@ jobs:
         fi
 
         echo "Using schema var: $SCHEMA_VAR_NAME"
-        VARS_JSON="{\"$SCHEMA_VAR_NAME\": \"public\"}"
+        VARS_JSON="{$SCHEMA_VAR_NAME: \'public\'}"
         echo "Running dbt with vars: $VARS_JSON"
     
         dbt deps
