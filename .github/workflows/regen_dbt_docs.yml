@@ -50,16 +50,16 @@ jobs:
         mkdir -p ~/.dbt
         cat > ~/.dbt/profiles.yml <<EOF
         my_project:
-          target: dev
+          target: integration_tests
           outputs:
-            dev:
+            integration_tests:
               type: postgres
               host: localhost
               user: dbt
               password: dbt
               port: 5432
               dbname: dbt
-              schema: public
+              schema: recharge_test
               threads: 1
         EOF
 
