@@ -49,10 +49,10 @@ jobs:
       run: |
         mkdir -p ~/.dbt
         cat > ~/.dbt/profiles.yml <<EOF
-        my_project:
-          target: integration_tests
+        integration_tests:
+          target: docker
           outputs:
-            integration_tests:
+            docker:
               type: postgres
               host: localhost
               user: dbt
